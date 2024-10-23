@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                             JSBridgeWebInterface(
                                 onBack = {
                                     coroutineScope.launch {
-                                        if (url?.contains("in-review") == true) {
+                                        if (url.isInReviewUrl()) {
                                             Log.e("xxx JsBridge", "do nothing")
                                             // do nothing
                                         } else if(canGoBack()) {
@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
                             ),
                             "JsBridge"
                         )
+                        // add logic on back pressed
                         setOnKeyListener { view, i, keyEvent ->
                             if (keyEvent.getAction() === KeyEvent.ACTION_DOWN) {
                                 when (i) {
@@ -67,13 +68,14 @@ class MainActivity : ComponentActivity() {
                             }
                             return@setOnKeyListener false
                         }
+                        // listen on url changes
                         webViewClient = object : WebViewClient() {
                             override fun doUpdateVisitedHistory(
                                 view: WebView?,
                                 url: String?,
                                 isReload: Boolean
                             ) {
-                                if (url?.contains("in-review") == true) {
+                                if (url.isInReviewUrl()) {
                                     isBackToExitApp = false
                                 }
                                 super.doUpdateVisitedHistory(view, url, isReload)
@@ -82,9 +84,6 @@ class MainActivity : ComponentActivity() {
                     }
                 )
             }
-            fun onBack() {
-
-            }
             POCBackWebviewTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) {
                     it
@@ -92,12 +91,14 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         factory = { _ ->
                             webView.apply {
-                                loadUrl("http://10.0.2.2:3000")
+                                loadUrl("https://bersama-poc-jsbridge.vercel.app/")
                             }
                         }
                     )
                 }
             }
+            // add logic on back pressed
+            // using onBackPressedDispatcher
             onBackPressedDispatcher.addCallback(
                 this,
                 object : OnBackPressedCallback(true) {
