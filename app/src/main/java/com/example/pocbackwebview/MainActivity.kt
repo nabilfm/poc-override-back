@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                         setOnKeyListener { view, i, keyEvent ->
                             if (keyEvent.getAction() === KeyEvent.ACTION_DOWN) {
                                 when (i) {
-                                    KeyEvent.KEYCODE_BACK -> if (canGoBack() && !isBackToExitApp) {
+                                    KeyEvent.KEYCODE_BACK -> if (canGoBack() && !isBackToExitApp && !url.isInReviewUrl()) {
                                         Log.d("xxx event listener", "going back from url $url")
                                         goBack()
                                         return@setOnKeyListener true
@@ -86,11 +86,8 @@ class MainActivity : ComponentActivity() {
 
             }
             POCBackWebviewTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    it
                     AndroidView(
                         modifier = Modifier.fillMaxSize(),
                         factory = { _ ->
@@ -105,7 +102,7 @@ class MainActivity : ComponentActivity() {
                 this,
                 object : OnBackPressedCallback(true) {
                     override fun handleOnBackPressed() {
-                        if (!isBackToExitApp && webView.url?.contains("in-review") == true) {
+                        if (!isBackToExitApp && webView.url.isInReviewUrl()) {
                             Log.e("xxx native", "do nothing")
                             // do nothing
                         } else if (webView.canGoBack()) {
@@ -120,20 +117,7 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    POCBackWebviewTheme {
-        Greeting("Android")
+    private fun String?.isInReviewUrl(): Boolean {
+        return this?.contains("in-review") == true
     }
 }
